@@ -1,8 +1,8 @@
 {
   "packageType": "app",
   "appName": "EnvProbe",
-  "version": "1.0.0",
-  "description": "TV environment probe (exploit prerequisite check)",
+  "version": "1.1.0",
+  "description": "TV environment probe v2 (rootchain deploy test)",
   "appPath": "page.html",
   "serviceFile": "service.js",
   "keys": []
