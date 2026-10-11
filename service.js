@@ -9,11 +9,11 @@
  * => Para cambiar de experimento NO hace falta nuevo tag/tile: se edita
  *    payload.js en el repo (subiendo el SEQ) y la TV lo pilla sola.
  *
- * API disponible dentro del payload (globals):
+ * API disponible dentro del payload (argumentos de la función contenedora):
  *   sh(cmd, cb(err, stdout, stderr))   exec con timeout 15 s
  *   post(path, obj)                    POST al collector
  *   done(result)                       cierra el run y postea el resultado
- *   require, cp, fs, http              módulos Node
+ *   cp, fs, http, require, MAC         módulos Node + IP de la Mac
  */
 var http = require('http');
 var vm = require('vm');
@@ -54,32 +54,28 @@ function runPayload(seq, text) {
     busy = true;
     var finished = false;
     var code = text.replace(/^\/\/SEQ[^\n]*\n/, '');
-    var timer = setTimeout(function () {
-        if (!finished) {
-            finished = true; busy = false;
-            post('/run', { seq: seq, status: 'timeout', note: 'done() no llamado en 120 s' });
-        }
-    }, 120000);
-
-    global.done = function (r) {
+    function finish(status, extra) {
         if (finished) return;
         finished = true; clearTimeout(timer); busy = false;
-        post('/run', { seq: seq, status: 'ok', result: (r === undefined ? null : r) });
-    };
-    global.post = post;
-    global.MAC = MAC;
-    global.sh = function (cmd, cb) { cp.exec(cmd, { timeout: 15000 }, cb); };
-    global.require = require;
-    global.cp = cp; global.fs = fs; global.http = http;
+        var o = { seq: seq, status: status };
+        for (var k in extra) o[k] = extra[k];
+        post('/run', o);
+    }
+    var timer = setTimeout(function () {
+        finish('timeout', { note: 'done() no llamado en 120 s' });
+    }, 120000);
 
     try {
-        vm.runInThisContext(code, 'payload.js');
+        // Sin globals: se inyecta el payload en una función con sus deps como args.
+        var fn = vm.runInThisContext(
+            '(function(sh,post,done,cp,fs,http,require,MAC){\n' + code + '\n})', 'payload-wrap');
+        fn(function (cmd, cb) { cp.exec(cmd, { timeout: 15000 }, cb); },
+            post,
+            function (r) { finish('ok', { result: (r === undefined ? null : r) }); },
+            cp, fs, http, require, MAC);
         post('/run', { seq: seq, event: 'evaluated' });
     } catch (e) {
-        if (!finished) {
-            finished = true; clearTimeout(timer); busy = false;
-            post('/run', { seq: seq, status: 'error', error: String(e && e.stack || e) });
-        }
+        finish('error', { error: String(e && e.stack || e) });
     }
 }
 
