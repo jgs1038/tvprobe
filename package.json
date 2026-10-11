@@ -1,8 +1,8 @@
 {
   "packageType": "app",
   "appName": "EnvProbe",
-  "version": "1.6.0",
-  "description": "probe v7 - dump binarios SUID + test de CLI + mapa de arranque",
+  "version": "1.7.0",
+  "description": "probe v8 - owner-owned map (units, dirs, triggers systemd)",
   "appPath": "page.html",
   "serviceFile": "service.js",
   "keys": []
