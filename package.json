@@ -1,8 +1,8 @@
 {
   "packageType": "app",
   "appName": "EnvProbe",
-  "version": "1.4.0",
-  "description": "probe v5 - UEP diagnosis (mounts, SUID, exec copy, dlopen multi-loc)",
+  "version": "1.5.0",
+  "description": "probe v6 - exec por mount, scripts 777, SGID, wrt-service, pkgmgr_cert.db",
   "appPath": "page.html",
   "serviceFile": "service.js",
   "keys": []
