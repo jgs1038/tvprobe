@@ -1,8 +1,8 @@
 {
   "packageType": "app",
   "appName": "EnvProbe",
-  "version": "1.3.0",
-  "description": "TV env probe v4 - pre-cadena (dlopen scan+patch + test root)",
+  "version": "1.4.0",
+  "description": "probe v5 - UEP diagnosis (mounts, SUID, exec copy, dlopen multi-loc)",
   "appPath": "page.html",
   "serviceFile": "service.js",
   "keys": []
